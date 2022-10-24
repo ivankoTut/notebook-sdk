@@ -1,0 +1,23 @@
+{
+    "name": "ivankotut/notebook-sdk",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ivan Kondratiev",
+            "email": "ivankotut@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=8.1",
+        "ext-json": "*",
+        "guzzlehttp/guzzle": "^7.5",
+        "symfony/serializer": "6.1.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "IvankoTut\\NotebookSdk\\": "src/"
+        }
+    }
+}
