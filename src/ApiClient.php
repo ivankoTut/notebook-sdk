@@ -5,10 +5,7 @@ namespace IvankoTut\NotebookSdk;
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
-use IvankoTut\NotebookSdk\Action\Alert;
-use IvankoTut\NotebookSdk\Action\Note;
-use IvankoTut\NotebookSdk\Action\Tag;
-use IvankoTut\NotebookSdk\Action\TelegramUser;
+use IvankoTut\NotebookSdk\Action as ActionSDK;
 use IvankoTut\NotebookSdk\Exception\ApiException;
 use IvankoTut\NotebookSdk\Exception\ApiNotFoundException;
 use Psr\Http\Message\ResponseInterface;
@@ -26,10 +23,11 @@ class ApiClient
      * HTTP-клиент
      */
     private HttpClient $httpClient;
-    private TelegramUser $telegramUser;
-    private Tag $tag;
-    private Note $note;
-    private Alert $alert;
+    private ActionSDK\TelegramUser $telegramUser;
+    private ActionSDK\Tag $tag;
+    private ActionSDK\Note $note;
+    private ActionSDK\Alert $alert;
+    private ActionSDK\File $file;
 
     public function __construct(
         string $apiBaseUrl,
@@ -40,30 +38,36 @@ class ApiClient
             'base_uri' => str_ends_with($apiBaseUrl, '/') ? $apiBaseUrl : $apiBaseUrl . '/',
         ]);
 
-        $this->tag = new Tag($this);
-        $this->note = new Note($this);
-        $this->alert = new Alert($this);
-        $this->telegramUser = new TelegramUser($this);
+        $this->tag = new ActionSDK\Tag($this);
+        $this->note = new ActionSDK\Note($this);
+        $this->alert = new ActionSDK\Alert($this);
+        $this->telegramUser = new ActionSDK\TelegramUser($this);
+        $this->file = new ActionSDK\File($this);
     }
 
-    public function telegramUser(): TelegramUser
+    public function telegramUser(): ActionSDK\TelegramUser
     {
         return $this->telegramUser;
     }
 
-    public function tag(): Tag
+    public function tag(): ActionSDK\Tag
     {
         return $this->tag;
     }
 
-    public function note(): Note
+    public function note(): ActionSDK\Note
     {
         return $this->note;
     }
 
-    public function alert(): Alert
+    public function alert(): ActionSDK\Alert
     {
         return $this->alert;
+    }
+
+    public function file(): ActionSDK\File
+    {
+        return $this->file;
     }
 
     /**
@@ -92,8 +96,13 @@ class ApiClient
         return $response;
     }
 
-    public function requestWithFillModel(string $classToFill, string $method, string $path, ?array $data = null, array $options = []): object
-    {
+    public function requestWithFillModel(
+        string $classToFill,
+        string $method,
+        string $path,
+        ?array $data = null,
+        array $options = []
+    ): object {
         $response = $this->request($method, $path, $data, $options);
 
         return $this->serializer->deserialize($response->getBody()->getContents(), $classToFill, 'json');
